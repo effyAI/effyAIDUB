@@ -1,0 +1,6 @@
+venv
+pre_train_pth/*.pth
+data
+*.pyc
+tests
+*/nohup.out
