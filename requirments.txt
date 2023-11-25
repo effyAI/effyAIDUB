@@ -1,0 +1,21 @@
+# Req. for voice-cloning
+
+setuptools
+wheel
+torch==2.0.0 --index-url https://download.pytorch.org/whl/cu118
+torchaudio==2.0.1  --index-url https://download.pytorch.org/whl/cu118
+so-vits-svc-fork
+Flask
+flask-restful
+boto3
+Flask-AutoIndex
+nltk
+pydub
+ffmpeg-python
+git+https://github.com/m-bain/whisperx.git
+googletrans==3.1.0a0
+audiostretchy[all]
+gTTS
+git+https://github.com/facebookresearch/demucs#egg=demucs
+moviepy
+pymongo[srv]==3.11.1

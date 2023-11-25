@@ -1,0 +1,48 @@
+{
+    "tts_lang_ends": {
+        "elevenlabs_lang": {
+            "en" : "English",
+            "jp" : "Japanese",
+            "cn" : "Chinese",
+            "de" : "German",
+            "hi" : "Hindi",
+            "es" : "Spanish",
+            "fr" : "French",
+            "it" : "Italian",
+            "kr" : "Korean",
+            "pt" : "Portuguese",
+            "id" : "Indonesian",
+            "nl" : "Dutch",
+            "tr" : "Turkish",
+            "fil" : "Filipino",
+            "pl" : "Polish",
+            "sv" : "Swedish",
+            "bg" : "Bulgarian",
+            "ro" : "Romanian",
+            "ar" : "Arabic",
+            "cs" : "Czech",
+            "el" : "Greek",
+            "fi" : "Finnish",
+            "hr" : "Croatian",
+            "ml" : "Malay",
+            "sk" : "Slovak",
+            "da" : "Danish",
+            "ta" : "Tamil",
+            "uk" : "Ukrainian",
+            "ru" : "Russian"
+        },
+        "voice_maker_lang": {
+            "bn-IN": {"lang": "Bengali", "male": "ai3-bn-IN-Neel", "female": "ai3-bn-IN-Koel"},
+            "gu-IN": {"lang": "Gujarati", "male": "ai3-gu-IN-Mihir", "female": "ai3-gu-IN-Prachi"},
+            "mr-IN": {"lang": "Marathi", "male": "ai3-mr-IN-Prashant", "female": "ai3-mr-IN-Sandhya"},
+            "ne-NP": {"lang": "Nepali", "male": "ai3-ne-NP-Utsav", "female": "ai3-ne-NP-Chimini"},
+            "pa-IN": {"lang": "Punjabi", "male": "ai2-pa-IN-Ranbir", "female": "ai2-pa-IN-Maahi"},
+            "sw-KE": {"lang": "Swahili", "male": "ai3-sw-KE-Fanaka", "female": "ai3-sw-KE-Obuya"},
+            "kn-IN": {"lang": "Kannada", "male": "ai2-kn-IN-Aadi", "female": "ai2-kn-IN-Vaani"},
+            "ml-IN": {"lang": "Malayalam", "male": "ai3-ml-IN-Indrajit", "female": "ai3-ml-IN-Revathi"},
+            "te-IN": {"lang": "Telugu", "male": "ai3-te-IN-Mohan", "female": "ai3-te-IN-Shruti"},
+            "hi-IN": {"lang": "Hindi", "male": "ai3-hi-IN-AdityaV2", "female": "ai3-hi-IN-AanyaV2"},
+            "ta-IN": {"lang": "Tamil", "male": "ai3-ta-IN-Valluvar", "female": "ai3-ta-IN-Pallavi"}
+        }
+    }
+}
