@@ -74,7 +74,7 @@ class TestMain():
         import so_vits_svc_fork.train
        
 
-    def preprocess_n_train(self, base_path, epochs=1000, eval_interval=500):
+    def preprocess_n_train(self, base_path, epochs=1000, eval_interval=500, prog_file=None):
 
         from so_vits_svc_fork.preprocessing.preprocess_resample import (
             preprocess_resample,
@@ -117,13 +117,10 @@ class TestMain():
         config_json["train"]["epochs"] = epochs
         config_json["train"]["eval_interval"] = eval_interval
         config_json["train"]["batch_size"] = 16 # default 16
+        config_json["train"]["keep_ckpts"] = 1 # default 8
 
         config_path.write_text(json.dumps(config_json), "utf-8")
 
-        prog = {"Progress":0}
-        prog_file = os.path.join(base_path,'train_progress.json') 
-        with open(prog_file,'w') as f:
-            json.dump(prog, fp=f)
         # print("---------------------------------",prog_file)
         # Coping base .pth file
         BASE_PTH_FILE_PATH = os.path.join(Path(os.getcwd()).parent.absolute(), 'pre_train_pth') # hard coded path need to improve
@@ -154,6 +151,7 @@ class TestMain():
                     shutil.copy(os.path.join(BASE_PTH_FILE_PATH,file), os.path.join(base_path,'logs/44k/'))
                 if file == "config.json":
                     os.remove(os.path.join(BASE_PTH_FILE_PATH,file))
+        print("Training")
         train(config_path, os.path.join(base_path,"logs/44k"), prog_file)
 
         # Upload to aws s3

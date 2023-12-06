@@ -13,7 +13,7 @@ from pydub import AudioSegment
 
 class AudioAPI:
     def __init__(self):
-        self.auth_token = ""
+        self.auth_token = "Bearer b481e2c0-6eae-11ee-82e6-7bf8df377ea1"
         self.content_type = "application/json"
         self.voice_endpoint = "https://developer.voicemaker.in/voice/api"
 

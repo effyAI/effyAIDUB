@@ -4,7 +4,7 @@ import json
 class ElevenAPI():
     def __init__(self):
         self.url = "https://api.elevenlabs.io/"
-        self.api_key = ""
+        self.api_key = "c7b6564ccbe88492eb64bdc0cf55180f"
 
 
     def list_voices(self):

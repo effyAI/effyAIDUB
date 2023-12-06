@@ -5,6 +5,7 @@ from pydub import AudioSegment
 from audiostretchy.stretch import stretch_audio
 import math
 import demucs.separate
+from transformers import pipeline
 
 
 class PrepareDataset:
@@ -152,3 +153,22 @@ def add_instuments(bass,drum, other, vocal, result_path):
     overlay.export(result_path, format="wav")
 
 
+def gender_detection(parent_audio_path, speaker_name):
+
+    data = {}
+    data[speaker_name] = {"male":0, "female":0}
+                          
+    for a in os.listdir(parent_audio_path):
+        pipe = pipeline("audio-classification", model="alefiury/wav2vec2-large-xlsr-53-gender-recognition-librispeech")
+        # res = [{'score': 0.9987540245056152, 'label': 'male'}, {'score': 0.001245927414856851, 'label': 'female'}]
+        res = pipe(os.path.join(parent_audio_path, a))
+        max_score = 0
+        for r in res:
+            if r['score'] > max_score:
+                max_score = r['score']
+                max_label = r['label']
+        data[speaker_name][max_label]+=1
+    
+    # return max gender
+    return max(data[speaker_name], key=data[speaker_name].get)
+    

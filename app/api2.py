@@ -20,12 +20,14 @@ from datetime import datetime
 import uuid
 from threading import Thread
 from el_dubber import el_dub_now
+from vm_dubber import vm_dub_now
 
 app = Flask(__name__)
 api = Api(app)
 
 
 BASE_DATA_FOLDER = os.path.join(Path(os.getcwd()).parent.absolute(),'data')
+
 status_url_table = mongo_db_connection('effy-ai-dub')
 
 remove_file_list = ['configs', 'dataset', 'dataset_raw', 'filelists', 'logs', 'res', 'VoiceToClone']
@@ -74,7 +76,7 @@ class CloneAudioELabs(Resource):
                 "status": "success",
                 "description": "video processing started",
                 "status_id": uinq_id
-            })
+            }, 200)
             # return({
             #     "Vocal Path": BASE_TRANSLATED_AUDIO,
             #     "Result_WIth_BGM": RESULT_WITH_BGM
@@ -84,31 +86,6 @@ class CloneAudioELabs(Resource):
         
     def get(self):
         print(request.data)
-
-# class ProgressStatusELabs(Resource):
-#     def get(self):
-#         req_json = json.loads(request.data.decode('utf-8'))
-#         print("ProgressE", req_json)
-#         if 'user_id' not in req_json or \
-#             'project_id' not in req_json or \
-#             'source_video_url' not in req_json or \
-#             'to_lang' not in req_json:
-#             return ({"Error": "Parameters Missing in Request"}, 400)
-
-#         user_id = str(req_json['user_id'])
-#         project_id = str(req_json['project_id'])
-#         to_lang = req_json['to_lang']
-
-#         BASE_LOG_FOLDER = os.path.join(BASE_DATA_FOLDER,user_id,project_id,"EL", to_lang)
-#         print(BASE_LOG_FOLDER)
-#         log_json_file = os.path.join(BASE_LOG_FOLDER,'log.json')
-
-#         try:
-#             with open(log_json_file, 'r') as f:
-#                 dct = json.load(f)
-#                 return dct
-#         except:
-#             return ({"Error": "No Log Found for this ID"}, 400)
 
 class ProgressStatusELabs_ID(Resource):
     def get(self):
@@ -136,104 +113,90 @@ class ProgressStatusELabs_ID(Resource):
 class CloneAudioVM(Resource):
     def post(self):
         try:
+            # print(request.json)
+            req_json = json.loads(request.data.decode('utf-8'))
             # print(request.files['source_wav_file'].filename)
-            if 'user_id' not in request.form or \
-                'project_id' not in request.form or \
-                'source_wav_file' not in request.files:
+            if 'user_id' not in req_json or \
+                'project_id' not in req_json or \
+                'source_video_url' not in req_json or \
+                'to_lang' not in req_json:
                 return ({"Error": "Parameters Missing in Request"}, 400)
             
-            user_id = request.form['user_id']
-            project_id = request.form['project_id']
+            user_id = req_json['user_id']
+            project_id = req_json['project_id']
+            to_lang = req_json['to_lang']
+            source_video_url = req_json['source_video_url']
+            with open('lang_list.json','r') as f:
+                lang_list = json.load(f)
 
-            BASE_PROJECT_FOLDER = os.path.join(BASE_DATA_FOLDER,user_id,project_id, "VM")
+            if to_lang not in lang_list['tts_lang_ends']['voice_maker_lang']:
+                return ({"Error": "Pass Correct Language"}, 400)
 
-            for rmf in remove_file_list:
-                # print(rmf, os.path.join(BASE_PROJECT_FOLDER,rmf))
-                if os.path.exists(os.path.join(BASE_PROJECT_FOLDER,rmf)):
-                    print('[+] Cleaning - {}'.format(os.path.join(BASE_PROJECT_FOLDER,rmf)))
-                    if rmf.endswith('.json'):
-                        os.remove(os.path.join(BASE_PROJECT_FOLDER,rmf))
-                    else:
-                        shutil.rmtree(os.path.join(BASE_PROJECT_FOLDER,rmf))
-            
+            #status_url
+            uinq_id = str(uuid.uuid4())
 
-            BASE_CLONE_FOLDER = os.path.join(BASE_PROJECT_FOLDER,'VoiceToClone')
-            if not os.path.exists(BASE_CLONE_FOLDER):
-                os.makedirs(BASE_CLONE_FOLDER)
+            print("testing")
+            Thread(target=vm_dub_now, args=(user_id,
+                                            project_id,
+                                            to_lang,
+                                            source_video_url, 
+                                            uinq_id, 
+                                            status_url_table,)).start()
 
-            save_path = "{}/Testaudio.wav".format(BASE_CLONE_FOLDER)
-            request.files['source_wav_file'].save(save_path)
-            
-            print(user_id)
-            
-            ## spliting and training in on voice
-            spl_au = Audio_split()
-
-            resp = spl_au.splitter(audio_path=save_path, out_path=BASE_PROJECT_FOLDER, split_sec=8)
-            if resp['status'] == 0:
-                return (resp['reason'], 400) 
-            if resp['status'] == 1:
-                print("Traning Will start Shortly")
-
-            svc = TestMain()
-            # svc.preprocess(base_path=BASE_PROJECT_FOLDER)
-            EPOCH = 1000
-
-            #starting thread for training
-            Thread(target=svc.preprocess_n_train, args=(BASE_PROJECT_FOLDER,EPOCH,500)).start()
-
-            g_path = os.getcwd()+'/logs/44k/G_{}.pth'.format(EPOCH)
-            c_path = os.getcwd()+'/logs/44k/config.json'
-            return ({"Sucess": "Training Started! refer progress now",
-                    "user_id": user_id,
-                    "project_id": project_id}, 200)
+            # g_path = os.getcwd()+'/logs/44k/G_{}.pth'.format(EPOCH)
+            # c_path = os.getcwd()+'/logs/44k/config.json'
+            return({
+                "status": "success",
+                "description": "video processing started",
+                "status_id": uinq_id
+            }, 200)
         except Exception as e:
-            return ({"Error": str(e)})
+            return ({"Error Ha Ha Ha": str(e)})
         
     def get(self):
         print(request.data)
 
-class InferAudioELabs(Resource):
-    def post(self):
+# class InferAudioELabs(Resource):
+#     def post(self):
         
-        try:
-            req_data = json.loads(request.data.decode('utf-8'))
+#         try:
+#             req_data = json.loads(request.data.decode('utf-8'))
 
-            if 'user_id' not in req_data or \
-                'project_id' not in req_data or \
-                'text' not in req_data:
-                return ({"Error": "Parameters Missing in Request"}, 400)
+#             if 'user_id' not in req_data or \
+#                 'project_id' not in req_data or \
+#                 'text' not in req_data:
+#                 return ({"Error": "Parameters Missing in Request"}, 400)
 
-            text = req_data['text']
-            user_id = req_data['user_id']
-            project_id = req_data['project_id']
+#             text = req_data['text']
+#             user_id = req_data['user_id']
+#             project_id = req_data['project_id']
 
-            if len(user_id) == 0:
-                return ({"Error": "Please Provide User ID"}, 400)
-            if len(project_id) == 0:
-                return ({"Error": "Please Provide Project ID"}, 400)
-            if len(text) == 0:
-                return ({"Error": "Please Provide Text"}, 400)
+#             if len(user_id) == 0:
+#                 return ({"Error": "Please Provide User ID"}, 400)
+#             if len(project_id) == 0:
+#                 return ({"Error": "Please Provide Project ID"}, 400)
+#             if len(text) == 0:
+#                 return ({"Error": "Please Provide Text"}, 400)
 
-            BASE_PROJECT_FOLDER = os.path.join(BASE_DATA_FOLDER,user_id,project_id, "EL")
+#             BASE_PROJECT_FOLDER = os.path.join(BASE_DATA_FOLDER,user_id,project_id, "EL")
 
-            spk_name = user_id+'_'+project_id
+#             spk_name = user_id+'_'+project_id
 
-            conv_path = os.path.join(BASE_PROJECT_FOLDER,'res')
-            if not os.path.exists(conv_path):
-                os.makedirs(conv_path)
+#             conv_path = os.path.join(BASE_PROJECT_FOLDER,'res')
+#             if not os.path.exists(conv_path):
+#                 os.makedirs(conv_path)
 
-            res_file = os.path.join(conv_path,'test_{}.wav'.format(time.strftime("%d_%m_%Y_%H_%M_%S")))
+#             res_file = os.path.join(conv_path,'test_{}.wav'.format(time.strftime("%d_%m_%Y_%H_%M_%S")))
             
-            api11 = ElevenAPI()
-            voice_id = api11.get_voice_id(spk_name)
-            api11.tts(voice_id=voice_id, text=text, save_path=res_file)
+#             api11 = ElevenAPI()
+#             voice_id = api11.get_voice_id(spk_name)
+#             api11.tts(voice_id=voice_id, text=text, save_path=res_file)
             
-            res_file = "http://34.239.163.60:8009"+res_file.split('data')[-1]
-            return ({"file_path": res_file}, 200)
+#             res_file = "http://34.239.163.60:8009"+res_file.split('data')[-1]
+#             return ({"file_path": res_file}, 200)
 
-        except Exception as e:
-            return ({"Error": str(e)})
+#         except Exception as e:
+#             return ({"Error": str(e)})
         
 class InferAudioVM(Resource):
     def post(self):
@@ -340,9 +303,7 @@ class InferAudioVM(Resource):
             return ({"Error": str(e)})
         
 class ProgressStats(Resource):
-    def get(self):
-
-    
+    def get(self):    
         req_data = json.loads(request.data.decode('utf-8'))
 
         if 'user_id' not in req_data or \
@@ -369,7 +330,37 @@ class ProgressStats(Resource):
                 return a
         except FileNotFoundError as e:
             return {"Error": f"Wrong user/project id"}
+
+class ProgressStatusVM(Resource):
+    def get(self):
+        req_json = json.loads(request.data.decode('utf-8'))
+        print(req_json)
+        if 'status_id' not in req_json:
+            return ({"Error": "Parameters Missing in Request"}, 400)
+
+        status_id = str(req_json['status_id'])
+        collection_name = 'status_url'
+        status_obj = status_url_table.find_one_by_uiqu_id(collection_name, status_id)
+
+        if status_obj is None:
+            return ({"Error": "No Log Found for this ID"}, 400)
         
+        # # get train status from local file
+        # if 'train_status_path' in status_obj[status_id]:
+        #     with open(status_obj[status_id]['train_status_path']) as f:
+        #         a = json.load(f)
+        #         if a['Progress'] == 99:
+        #             a['Progress']+=1
+        
+        ## delete if s3 link is present
+        if 's3_link' in status_obj[status_id]:
+            progress_status = status_obj[status_id] 
+            mongo_id = status_obj['_id']
+            status_url_table.delete_item(collection_name, {"_id": mongo_id})
+            return progress_status
+
+        return status_obj[status_id]
+
 class GetLangList(Resource):
     def get(self):
         with open('lang_list.json') as f:
@@ -381,19 +372,30 @@ class GetLangListELabs(Resource):
         with open('lang_list.json') as f:
             lang_list = json.load(f)
         return lang_list['tts_lang_ends']['elevenlabs_lang']
+
+class GetLangListVM(Resource):
+    def get(self):
+        with open('lang_list.json') as f:
+            lang_list = json.load(f)
+        ret_data = {}
+        for k,v in lang_list['tts_lang_ends']['voice_maker_lang'].items():
+            ret_data[k] = v['lang']
+        return ret_data
             
 ppath = BASE_DATA_FOLDER # update your own parent directory here
 AutoIndex(app, browse_root=ppath)
 
-api.add_resource(InferAudioELabs, '/inferE')
+# api.add_resource(InferAudioELabs, '/inferE')
 api.add_resource(InferAudioVM, '/inferV')
 api.add_resource(CloneAudioELabs, '/cloneE')
 api.add_resource(CloneAudioVM, '/cloneV')
 api.add_resource(ProgressStats, '/progress')
 # api.add_resource(ProgressStatusELabs, '/progressE')
 api.add_resource(ProgressStatusELabs_ID, '/progressE')
+api.add_resource(ProgressStatusVM, '/progressV')
 api.add_resource(GetLangList, '/lang_list')
 api.add_resource(GetLangListELabs, '/lang_list_E')
+api.add_resource(GetLangListVM, '/lang_list_V')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

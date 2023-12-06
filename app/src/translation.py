@@ -14,6 +14,7 @@ class GoogelTranslation:
             "speaker": d['speaker']
         }
         """
+        to_lang = to_lang.split('-')[0]
 
         for k,v in sdd_distil.items():
             src_text = v['text']
@@ -32,6 +33,7 @@ class GoogelTranslation:
             to_lang: translated_text
         }
         """
+        to_lang = to_lang.split('-')[0]
         res = ""
 
         orignal_save = os.path.join(save_path, f'original_translated_{to_lang}.txt')

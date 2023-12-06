@@ -42,7 +42,8 @@
             "ml-IN": {"lang": "Malayalam", "male": "ai3-ml-IN-Indrajit", "female": "ai3-ml-IN-Revathi"},
             "te-IN": {"lang": "Telugu", "male": "ai3-te-IN-Mohan", "female": "ai3-te-IN-Shruti"},
             "hi-IN": {"lang": "Hindi", "male": "ai3-hi-IN-AdityaV2", "female": "ai3-hi-IN-AanyaV2"},
-            "ta-IN": {"lang": "Tamil", "male": "ai3-ta-IN-Valluvar", "female": "ai3-ta-IN-Pallavi"}
+            "ta-IN": {"lang": "Tamil", "male": "ai3-ta-IN-Valluvar", "female": "ai3-ta-IN-Pallavi"},
+            "en-IN": {"lang": "English", "male": "ai3-en-IN-Prabhas", "female": "ai3-en-IN-Neerja"}
         }
     }
 }
